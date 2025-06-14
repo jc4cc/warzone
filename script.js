@@ -35,7 +35,7 @@ let gameConfig = {
 };
 
 // Configuração da API (funciona apenas se o servidor estiver rodando)
-const API_BASE_URL = "https://warzone-camp.onrender.com/api";
+const API_BASE_URL = "https://warzone-da3e.onrender.com/api";
 let authToken = null;
 
 // Senha de acesso
