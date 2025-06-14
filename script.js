@@ -62,9 +62,8 @@ async function initializePage() {
     await loadDataFromAPI();
     
     // Se não conseguir carregar da API, carregar do localStorage
-    if (!gameConfig.isAuthenticated) {
-        loadDataFromStorage();
-    }
+ 
+    
     
     // Iniciar autosave apenas se autenticado
     if (gameConfig.isAuthenticated) {
