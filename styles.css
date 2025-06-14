@@ -1,0 +1,837 @@
+/* Reset e configurações básicas */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Rajdhani', sans-serif;
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+    color: #ffffff;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Modo de edição */
+.edit-mode {
+    border: 3px solid #ffd700;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.edit-mode .editable {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.edit-mode .editable:hover {
+    background: rgba(255, 215, 0, 0.2);
+    border-radius: 4px;
+    padding: 2px 4px;
+}
+
+/* Container principal */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: 20px 0;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo-icon {
+    font-size: 48px;
+    filter: drop-shadow(0 0 10px rgba(255, 119, 198, 0.8));
+}
+
+.logo-text {
+    font-family: 'Orbitron', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: #ff77c6;
+    text-shadow: 0 0 10px rgba(255, 119, 198, 0.8);
+}
+
+.title-section {
+    text-align: left;
+}
+
+.main-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 64px;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+
+.camp-text {
+    color: #ffffff;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+}
+
+.warzone-text {
+    color: #ff006e;
+    text-shadow: 0 0 20px rgba(255, 0, 110, 0.8);
+}
+
+.header-right {
+    text-align: right;
+}
+
+.game-status {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.game-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.game-number {
+    font-family: 'Orbitron', monospace;
+    font-size: 24px;
+    font-weight: 700;
+    color: #06ffa5;
+    text-shadow: 0 0 10px rgba(6, 255, 165, 0.8);
+}
+
+.game-status-text {
+    font-family: 'Orbitron', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    color: #ff006e;
+    text-shadow: 0 0 10px rgba(255, 0, 110, 0.8);
+}
+
+.tournament-logos {
+    display: flex;
+    gap: 15px;
+}
+
+.tournament-logo {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+    border: 2px solid rgba(255, 215, 0, 0.6);
+}
+
+/* Leaderboard principal */
+.leaderboard-main {
+    margin-bottom: 40px;
+}
+
+.leaderboard-grid {
+    display: grid;
+    gap: 20px;
+}
+
+.leaderboard-column {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Player rows */
+.player-row {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, rgba(255, 0, 110, 0.8) 0%, rgba(120, 119, 198, 0.8) 100%);
+    border-radius: 15px;
+    padding: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    min-height: 90px;
+}
+
+.player-row::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.player-row:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(255, 0, 110, 0.4);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.player-row.selected {
+    border-color: #ffd700;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+    transform: scale(1.02);
+}
+
+.position-number {
+    font-family: 'Orbitron', monospace;
+    font-size: 36px;
+    font-weight: 900;
+    color: #ffffff;
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+    min-width: 60px;
+    text-align: center;
+    margin-right: 20px;
+}
+
+.player-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex: 1;
+}
+
+.team-logo {
+    font-size: 40px;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+}
+
+.player-details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.player-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    text-transform: uppercase;
+}
+
+.team-name {
+    font-size: 20px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.score-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.team-indicator {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+}
+
+.team-1 { background: linear-gradient(135deg, #ff006e, #ff77c6); }
+.team-2 { background: linear-gradient(135deg, #06ffa5, #4ade80); }
+.team-3 { background: linear-gradient(135deg, #ffd700, #ffed4e); }
+.team-4 { background: linear-gradient(135deg, #00d4ff, #7dd3fc); }
+
+.score {
+    font-family: 'Orbitron', monospace;
+    font-size: 32px;
+    font-weight: 900;
+    color: #ffffff;
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+    min-width: 80px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 8px 15px;
+    border-radius: 10px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Nova seção de Ranking de Kills */
+.kills-ranking-section {
+    margin-top: 50px;
+    padding: 30px 0;
+    border-top: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.kills-ranking-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.kills-ranking-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 48px;
+    font-weight: 900;
+    color: #ffffff;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+
+.kills-ranking-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.kill-card {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(30, 30, 30, 0.8) 100%);
+    border: 2px solid rgba(255, 215, 0, 0.6);
+    border-radius: 15px;
+    padding: 25px 15px;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.kill-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.kill-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(255, 215, 0, 0.4);
+    border-color: #ffd700;
+}
+
+.kill-position {
+    font-family: 'Orbitron', monospace;
+    font-size: 48px;
+    font-weight: 900;
+    color: #ffd700;
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+    margin-bottom: 15px;
+}
+
+.kill-player-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    margin-bottom: 15px;
+    line-height: 1.2;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.kill-icon {
+    font-size: 32px;
+    margin: 15px 0;
+    filter: drop-shadow(0 0 10px rgba(255, 0, 110, 0.8));
+}
+
+.kill-count {
+    font-family: 'Orbitron', monospace;
+    font-size: 36px;
+    font-weight: 900;
+    color: #ff006e;
+    text-shadow: 0 0 15px rgba(255, 0, 110, 0.8);
+    margin-bottom: 8px;
+}
+
+.kill-label {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* Controles no canto inferior direito */
+.controls-panel-bottom-right {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+}
+
+.controls-toggle {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #ff006e 0%, #ff77c6 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(255, 0, 110, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.controls-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 35px rgba(255, 0, 110, 0.6);
+}
+
+.controls-toggle.expanded {
+    background: linear-gradient(135deg, #06ffa5 0%, #4ade80 100%);
+    box-shadow: 0 8px 25px rgba(6, 255, 165, 0.4);
+}
+
+.arrow-icon {
+    font-size: 24px;
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    transition: transform 0.3s ease;
+}
+
+.controls-toggle.expanded .arrow-icon {
+    transform: rotate(180deg);
+}
+
+.controls-content {
+    position: absolute;
+    bottom: 80px;
+    right: 0;
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 20px;
+    min-width: 250px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.controls-content.expanded {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.controls-section {
+    margin-bottom: 20px;
+}
+
+.controls-section:last-child {
+    margin-bottom: 0;
+}
+
+.controls-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: #ff006e;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
+
+.control-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.control-item kbd {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 30px;
+    text-align: center;
+}
+
+.control-item span {
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+}
+
+/* Modal de autenticação */
+.auth-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.auth-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.auth-content {
+    background: linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(50, 50, 50, 0.95) 100%);
+    border: 2px solid #ff006e;
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(255, 0, 110, 0.3);
+}
+
+.auth-content h2 {
+    font-family: 'Orbitron', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: #ff006e;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px rgba(255, 0, 110, 0.8);
+}
+
+.auth-content p {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 25px;
+}
+
+.auth-content input {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    margin-bottom: 25px;
+    font-family: 'Rajdhani', sans-serif;
+    text-align: center;
+}
+
+.auth-content input:focus {
+    outline: none;
+    border-color: #06ffa5;
+    box-shadow: 0 0 15px rgba(6, 255, 165, 0.4);
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.auth-buttons button {
+    padding: 12px 25px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Rajdhani', sans-serif;
+    text-transform: uppercase;
+}
+
+#loginBtn {
+    background: linear-gradient(135deg, #ff006e 0%, #ff77c6 100%);
+    color: #ffffff;
+}
+
+#loginBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 0, 110, 0.4);
+}
+
+#cancelBtn {
+    background: linear-gradient(135deg, #666 0%, #888 100%);
+    color: #ffffff;
+}
+
+#cancelBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.auth-error {
+    color: #ff4444;
+    font-size: 14px;
+    margin-top: 15px;
+    font-weight: 600;
+}
+
+/* Animação de vitória */
+.victory-animation-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.5s ease;
+}
+
+.victory-animation-container.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.victory-content {
+    text-align: center;
+    animation: victoryPulse 2s ease-in-out infinite;
+}
+
+.trophy-animation {
+    font-size: 120px;
+    margin-bottom: 20px;
+    animation: trophyBounce 1s ease-in-out infinite;
+}
+
+.victory-text {
+    font-family: 'Orbitron', monospace;
+    font-size: 48px;
+    font-weight: 900;
+    color: #ffd700;
+    text-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+    margin-bottom: 20px;
+}
+
+.champion-team {
+    font-family: 'Orbitron', monospace;
+    font-size: 32px;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+}
+
+@keyframes victoryPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes trophyBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+/* Toast notifications */
+.toast {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    background: rgba(0, 0, 0, 0.9);
+    color: #ffffff;
+    padding: 15px 25px;
+    border-radius: 10px;
+    border: 2px solid #06ffa5;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    z-index: 10001;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+    max-width: 300px;
+}
+
+.toast.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+/* Indicador de autosave */
+.auto-save-indicator {
+    position: fixed;
+    top: 30px;
+    left: 30px;
+    background: rgba(6, 255, 165, 0.9);
+    color: #000000;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    z-index: 10001;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-20px);
+    transition: all 0.3s ease;
+}
+
+.auto-save-indicator.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Responsividade */
+@media (max-width: 1200px) {
+    .kills-ranking-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+    }
+    
+    .kill-card {
+        padding: 20px 10px;
+    }
+    
+    .kill-position {
+        font-size: 36px;
+    }
+    
+    .kill-player-name {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .header {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+    
+    .main-title {
+        font-size: 48px;
+    }
+    
+    .kills-ranking-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    .kills-ranking-title {
+        font-size: 32px;
+    }
+    
+    .kill-position {
+        font-size: 28px;
+    }
+    
+    .kill-player-name {
+        font-size: 12px;
+    }
+    
+    .player-row {
+        padding: 15px;
+        min-height: 70px;
+    }
+    
+    .position-number {
+        font-size: 28px;
+        min-width: 50px;
+    }
+    
+    .player-name {
+        font-size: 22px;
+    }
+    
+    .team-name {
+        font-size: 16px;
+    }
+    
+    .score {
+        font-size: 24px;
+        min-width: 60px;
+    }
+}
+
+@media (max-width: 480px) {
+    .kills-ranking-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .kill-card {
+        padding: 15px;
+    }
+    
+    .controls-panel-bottom-right {
+        bottom: 20px;
+        right: 20px;
+    }
+    
+    .controls-toggle {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .arrow-icon {
+        font-size: 20px;
+    }
+}
+

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    <title>Campeonato Warzone - Placar de Líderes</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Modal de autenticação -->
+    <div id="authModal" class="auth-modal">
+        <div class="auth-content">
+            <h2>Acesso Restrito</h2>
+            <p>Digite a senha para editar o placar:</p>
+            <input type="password" id="passwordInput" placeholder="Digite a senha">
+            <div class="auth-buttons">
+                <button id="loginBtn">Entrar</button>
+                <button id="cancelBtn">Cancelar</button>
+            </div>
+            <div id="authError" class="auth-error"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Header compacto -->
+        <header class="header">
+            <div class="header-left">
+                <div class="logo-section">
+                    <div class="logo-icon">🎮</div>
+                    <span class="logo-text">VISUALIZAÇÃO</span>
+                </div>
+                <div class="title-section">
+                    <h1 class="main-title">
+                        <span class="camp-text">CAMPEONATO</span>
+                        <span class="warzone-text">WARZONE</span>
+                    </h1>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="game-status">
+                    <div class="game-info">
+                        <span class="game-number editable" data-field="gameNumber">JOGO 5/6</span>
+                        <span class="game-status-text editable" data-field="gameStatus">STARTING SOON</span>
+                    </div>
+                    <div class="tournament-logos">
+                        <div class="tournament-logo trophy-icon">🏆</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Leaderboard principal compacto -->
+        <div class="leaderboard-main">
+            <div class="leaderboard-grid">
+                <!-- Coluna única com 10 posições -->
+                <div class="leaderboard-column" id="leaderboardColumn">
+                    <!-- Os jogadores serão renderizados dinamicamente aqui -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Nova seção de Ranking de Kills Individuais -->
+        <div class="kills-ranking-section">
+            <div class="kills-ranking-header">
+                <h2 class="kills-ranking-title">RANKING DE KILLS INDIVIDUAIS</h2>
+            </div>
+            <div class="kills-ranking-grid">
+                <div class="kill-card position-1">
+                    <div class="kill-position">1</div>
+                    <div class="kill-player-name editable" data-field="killPlayer1">DEVO SWAY TAPPA</div>
+                    <div class="kill-icon">🎯</div>
+                    <div class="kill-count editable" data-field="killCount1">0</div>
+                    <div class="kill-label">KILLS</div>
+                </div>
+                
+                <div class="kill-card position-2">
+                    <div class="kill-position">2</div>
+                    <div class="kill-player-name editable" data-field="killPlayer2">CLOWHN DONJAY SHERRO</div>
+                    <div class="kill-icon">🎯</div>
+                    <div class="kill-count editable" data-field="killCount2">0</div>
+                    <div class="kill-label">KILLS</div>
+                </div>
+                
+                <div class="kill-card position-3">
+                    <div class="kill-position">3</div>
+                    <div class="kill-player-name editable" data-field="killPlayer3">JOEWO OAKBOI ZLANER</div>
+                    <div class="kill-icon">🎯</div>
+                    <div class="kill-count editable" data-field="killCount3">0</div>
+                    <div class="kill-label">KILLS</div>
+                </div>
+                
+                <div class="kill-card position-4">
+                    <div class="kill-position">4</div>
+                    <div class="kill-player-name editable" data-field="killPlayer4">CLIMZZY FLANKED JTECC</div>
+                    <div class="kill-icon">🎯</div>
+                    <div class="kill-count editable" data-field="killCount4">0</div>
+                    <div class="kill-label">KILLS</div>
+                </div>
+                
+                <div class="kill-card position-5">
+                    <div class="kill-position">5</div>
+                    <div class="kill-player-name editable" data-field="killPlayer5">JAWAD ROBSTAR SHOWSTOPPER</div>
+                    <div class="kill-icon">🎯</div>
+                    <div class="kill-count editable" data-field="killCount5">0</div>
+                    <div class="kill-label">KILLS</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Victory Animation -->
+        <div id="victoryAnimation" class="victory-animation-container">
+            <div class="victory-content">
+                <div class="trophy-animation">🏆</div>
+                <div class="victory-text">VITÓRIA!</div>
+                <div class="champion-team">CAMPEÃO</div>
+            </div>
+        </div>
+
+        <!-- Toast notifications -->
+        <div id="toast" class="toast"></div>
+
+        <!-- Controles com ícone de seta no canto inferior direito -->
+        <div class="controls-panel-bottom-right">
+            <div class="controls-toggle" id="controlsToggle">
+                <div class="arrow-icon">⬇</div>
+            </div>
+            <div class="controls-content" id="controlsContent">
+                <div class="controls-section">
+                    <div class="controls-title">EDIÇÃO</div>
+                    <div class="control-item">
+                        <kbd>E</kbd>
+                        <span>Modo Edição</span>
+                    </div>
+                    <div class="control-item">
+                        <kbd>R</kbd>
+                        <span>Reset Scores</span>
+                    </div>
+                    <div class="control-item">
+                        <kbd>S</kbd>
+                        <span>Salvar</span>
+                    </div>
+                </div>
+                <div class="controls-section">
+                    <div class="controls-title">NAVEGAÇÃO</div>
+                    <div class="control-item">
+                        <kbd>↑↓</kbd>
+                        <span>Navegar</span>
+                    </div>
+                    <div class="control-item">
+                        <kbd>A/D</kbd>
+                        <span>±1 Ponto</span>
+                    </div>
+                    <div class="control-item">
+                        <kbd>Q/W</kbd>
+                        <span>±5 Pontos</span>
+                    </div>
+                </div>
+                <div class="controls-section">
+                    <div class="controls-title">SISTEMA</div>
+                    <div class="control-item">
+                        <kbd>L</kbd>
+                        <span>Modo Live</span>
+                    </div>
+                    <div class="control-item">
+                        <kbd>F</kbd>
+                        <span>Fullscreen</span>
+                    </div>
+                    <div class="control-item">
+                        <kbd>T</kbd>
+                        <span>Troféu</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
