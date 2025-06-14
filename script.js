@@ -1,15 +1,15 @@
 // Dados dos jogadores do Camp Warzone reorganizados (posições 1-9 e 19 renumerada para 10)
 let playersData = [
     { position: 1, name: "BI", team: "HISOKA SHIFTY", score: 0, logo: "🌪️", teamId: 1 },
-    { position: 2, name: "HAVOC", team: "MONZO SLAPPY", score: 0, logo: "⚡", teamId: 2 },
-    { position: 3, name: "BLAZT", team: "GABEKUUN SKULLFACE", score: 0, logo: "💯", teamId: 3 },
-    { position: 4, name: "ECHO", team: "FIFAKILL LENON", score: 0, logo: "🎯", teamId: 4 },
-    { position: 5, name: "DONGY", team: "NEWBZ SAGE", score: 0, logo: "🐺", teamId: 1 },
+    { position: 2, name: "OC", team: "MONZO SLAPPY", score: 0, logo: "⚡", teamId: 2 },
+    { position: 3, name: "BZT", team: "GABEKUUN SKULLFACE", score: 0, logo: "💯", teamId: 3 },
+    { position: 4, name: "EO", team: "FIFAKILL LENON", score: 0, logo: "🎯", teamId: 4 },
+    { position: 5, name: "NGY", team: "NEWBZ SAGE", score: 0, logo: "🐺", teamId: 1 },
     { position: 6, name: "ADRIAN", team: "DESTROY UNRATIONAL", score: 0, logo: "🎮", teamId: 2 },
-    { position: 7, name: "DEKII", team: "LAYZE STUKEX", score: 0, logo: "🎯", teamId: 3 },
-    { position: 8, name: "AMIR", team: "CASTILLO ZDARK", score: 0, logo: "🌊", teamId: 4 },
-    { position: 9, name: "BRAXTYN", team: "EMPATHY RYDA", score: 0, logo: "🎮", teamId: 1 },
-    { position: 10, name: "OTTEREVES", team: "ZAVOLA ZEPIT", score: 0, logo: "🎯", teamId: 3 }
+    { position: 7, name: "DEK", team: "LAYZE STUKEX", score: 0, logo: "🎯", teamId: 3 },
+    { position: 8, name: "AR", team: "CASTILLO ZDARK", score: 0, logo: "🌊", teamId: 4 },
+    { position: 9, name: "BXT", team: "EMPATHY RYDA", score: 0, logo: "🎮", teamId: 1 },
+    { position: 10, name: "OES", team: "ZAVOLA ZEPIT", score: 0, logo: "🎯", teamId: 3 }
 ];
 
 // Dados do ranking de kills
