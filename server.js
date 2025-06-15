@@ -440,3 +440,32 @@ process.on('SIGTERM', () => {
     process.exit(0);
 });
 
+// Rota para verificar se a API está online
+app.get('/api/ping', (req, res) => {
+    res.status(200).json({ success: true, message: 'API Online ✅' });
+});
+
+// Endpoint para salvar dados da leaderboard
+app.post('/api/leaderboard/save', async (req, res) => {
+    try {
+        const { players, killsData, gameConfig } = req.body;
+
+        if (!players || !killsData || !gameConfig) {
+            return res.status(400).json({ success: false, error: 'Dados incompletos.' });
+        }
+
+        await Player.deleteMany({});
+        await Player.insertMany(players);
+
+        await KillsData.deleteMany({});
+        await KillsData.insertMany(killsData);
+
+        await GameConfig.deleteMany({});
+        await GameConfig.create(gameConfig);
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Erro ao salvar leaderboard:', error);
+        res.status(500).json({ success: false, error: 'Erro interno do servidor.' });
+    }
+});
