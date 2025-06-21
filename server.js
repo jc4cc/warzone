@@ -17,7 +17,7 @@ const io = socketIo(server, {
 });
 
 const PORT = process.env.PORT || 3000;
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://jcuser:929424@clusterwarzone.7heoa9p.mongodb.net/?retryWrites=true&w=majority&appName=Clusterwarzone";
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://jcuser:929424@clusterwarzone.xhyxdi8.mongodb.net/?retryWrites=true&w=majority&appName=Clusterwarzone";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "929424";
 
 // Middleware
