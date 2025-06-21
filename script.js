@@ -1,7 +1,21 @@
 // Global variables
-let teams = [];
-let individualKills = [];
-const API_BASE_URL = 'https://warzonecamp.onrender.com/api';
+let teams = [{ position: 1, name: "BIFFLE", team: "HISOKA SHIFTY", score: 0, logo: "🌪️", teamId: 1 },
+    { position: 2, name: "HAVOC", team: "MONZO SLAPPY", score: 0, logo: "⚡", teamId: 2 },
+    { position: 3, name: "BLAZT", team: "GABEKUUN SKULLFACE", score: 0, logo: "💯", teamId: 3 },
+    { position: 4, name: "ECHO", team: "FIFAKILL LENON", score: 0, logo: "🎯", teamId: 4 },
+    { position: 5, name: "DONGY", team: "NEWBZ SAGE", score: 0, logo: "🐺", teamId: 1 },
+    { position: 6, name: "ADRIAN", team: "DESTROY UNRATIONAL", score: 0, logo: "🎮", teamId: 2 },
+    { position: 7, name: "DEKII", team: "LAYZE STUKEX", score: 0, logo: "🎯", teamId: 3 },
+    { position: 8, name: "AMIR", team: "CASTILLO ZDARK", score: 0, logo: "🌊", teamId: 4 },
+    { position: 9, name: "BRAXTYN", team: "EMPATHY RYDA", score: 0, logo: "🎮", teamId: 1 },
+    { position: 10, name: "OTTEREVES", team: "ZAVOLA ZEPIT", score: 0, logo: "🎯", teamId: 3 }
+];
+let individualKills = [ 
+    { position: 1, name: "DEVO SWAY TAPPA", kills: 0 },
+    { position: 2, name: "CLOWHN DONJAY SHERRO", kills: 0 },
+    { position: 3, name: "JOEWO OAKBOI ZLANER", kills: 0 },
+];
+const API_BASE_URL = 'https://warzone-kzi5.onrender.com';
 
 // Team icons mapping
 const teamIcons = {
