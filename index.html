@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campeonato Warzone</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <div class="logo">
+                    <span class="logo-text">VISUALIZAÇÃO</span>
+                </div>
+            </div>
+            <div class="header-center">
+                <h1 class="title">CAMPEONATO<br><span class="warzone">WARZONE</span></h1>
+            </div>
+            <div class="header-right">
+                <div class="game-info" id="gameInfo">
+                    <span class="game-label" id="gameLabel">JOGO 1/10</span>
+                    <div class="game-icon">🎮</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Teams Ranking -->
+        <main class="teams-section">
+            <div class="teams-list" id="teamsList">
+                <!-- Teams will be dynamically loaded here -->
+            </div>
+        </main>
+
+        <!-- Individual Kills Ranking -->
+        <section class="kills-section">
+            <h2 class="kills-title">RANKING DE KILLS INDIVIDUAIS</h2>
+            <div class="kills-ranking" id="killsRanking">
+                <!-- Individual kills ranking will be loaded here -->
+            </div>
+        </section>
+
+        <!-- Admin Panel (Hidden by default) -->
+        <div class="admin-panel" id="adminPanel" style="display: none;">
+            <div class="admin-content">
+                <span class="close-btn" id="closeAdminPanel">&times;</span>
+                <h3>Painel Administrativo</h3>
+                
+                <div class="admin-controls">
+                    <button id="editModeBtn">Editar</button>
+                    <button id="increaseKillsBtn">Aumentar Kills</button>
+                    <button id="decreaseKillsBtn">Diminuir Kills</button>
+                </div>
+                
+                <div class="admin-form">
+                    <input type="text" id="gameNumber" placeholder="Número do Jogo (ex: 1/10)">
+                    <button id="updateGameBtn">Atualizar Jogo</button>
+                </div>
+                
+                <h4>Adicionar Nova Equipe</h4>
+                <div class="admin-form">
+                    <input type="text" id="teamName" placeholder="Nome da Equipe">
+                    <input type="text" id="teamTag" placeholder="Tag da Equipe">
+                    <input type="number" id="teamKills" placeholder="Kills" min="0">
+                    <button id="addTeamBtn">Adicionar Equipe</button>
+                </div>
+
+                <h4>Gerenciar Equipes</h4>
+                <ul id="adminTeamsList" class="admin-list">
+                    <!-- Teams will be loaded here for admin -->
+                </ul>
+                <button id="updateRankingBtn">Atualizar Ranking de Equipes</button>
+
+                <h4>Gerenciar Kills Individuais</h4>
+                <ul id="adminKillsList" class="admin-list">
+                    <!-- Individual kills will be loaded here for admin -->
+                </ul>
+                <div class="admin-form">
+                    <input type="text" id="playerName" placeholder="Nome do Jogador">
+                    <input type="text" id="playerTeam" placeholder="Equipe do Jogador">
+                    <button id="addKillBtn">Adicionar Kill Individual</button>
+                </div>
+
+                <div class="admin-controls">
+                    <button id="resetDataBtn">Resetar Todos os Dados</button>
+                    <button id="refreshDataBtn">Atualizar Dados</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Password Modal -->
+        <div class="password-modal" id="passwordModal" style="display: none;">
+            <div class="modal-content">
+                <span class="close-btn" id="closePasswordModal">&times;</span>
+                <h3>Acesso Administrativo</h3>
+                <input type="password" id="passwordInput" placeholder="Digite a senha">
+                <button onclick="checkPassword()">Entrar</button>
+                <p id="passwordError" class="error-message"></p>
+            </div>
+        </div>
+
+        <!-- Admin Access Button -->
+        <button class="admin-access-btn" id="settingsIcon">⚙️</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+
