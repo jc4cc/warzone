@@ -176,8 +176,6 @@ async function loadInitialData() {
     }
 }
 
-// Load default data if API is not available (removed, now uses local storage fallback)
-
 // Load teams from API
 async function loadTeams() {
     try {
@@ -465,7 +463,7 @@ async function editKillPrompt(killId) {
     const adminPassword = ADMIN_PASSWORD; // Use hardcoded password
 
     try {
-        const response = await fetch(`https://warzone-kzi5.onrender.com/kills/${killId}`, {
+        const response = await fetch(`${API_BASE_URL}/kills/${killId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -495,10 +493,10 @@ async function deleteKill(killId) {
     const adminPassword = ADMIN_PASSWORD; // Use hardcoded password
 
     try {
-        const response = await fetch(`https://warzone-kzi5.onrender.com/kills/${killId}`, {
+        const response = await fetch(`${API_BASE_URL}/kills/${killId}`, {
             method: 'DELETE',
             headers: {
-                'X-Admin-Password': ADMIN_PASSWORD
+                'X-Admin-Password': adminPassword
             }
         });
 
@@ -515,66 +513,39 @@ async function deleteKill(killId) {
     }
 }
 
-// Update team positions based on kills (now handled by backend)
-function updateTeamPositions() {
-    // This function is now primarily for local sorting before rendering if API fails
-    teams.sort((a, b) => b.kills - a.kills);
-    teams.forEach((team, index) => {
-        team.position = index + 1;
-    });
-}
-
-// Update ranking (now triggers backend update)
-async function updateRanking() {
+// Add individual kill
+async function addIndividualKill() {
+    const player = document.getElementById('killPlayer').value.trim();
+    const kills = parseInt(document.getElementById('killKills').value) || 0;
+    const team = document.getElementById('killTeam').value.trim();
     const adminPassword = ADMIN_PASSWORD; // Use hardcoded password
+
+    if (!player || !team) {
+        alert('Por favor, preencha o nome do jogador e a equipe.');
+        return;
+    }
+
     try {
-        const response = await fetch(`https://warzone-kzi5.onrender.com/teams/ranking`, {
-            method: 'PUT',
+        const response = await fetch(`${API_BASE_URL}/kills`, {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-Admin-Password': adminPassword
-            }
+            },
+            body: JSON.stringify({ player, kills, team })
         });
 
         if (response.ok) {
-            await loadTeams();
-            alert('Ranking de equipes atualizado com sucesso!');
+            await loadIndividualKills(); // Reload kills to get updated positions
+            clearAdminForm();
+            alert('Kill individual adicionado com sucesso!');
         } else {
             const errorData = await response.json();
-            alert(`Erro ao atualizar ranking de equipes: ${errorData.error}`);
+            alert(`Erro ao adicionar kill individual: ${errorData.error}`);
         }
     } catch (error) {
-        console.error('Error updating ranking:', error);
-        alert('Erro de conexão ao atualizar ranking de equipes.');
-    }
-}
-
-// Reset all data
-async function resetData() {
-    if (confirm('Tem certeza que deseja resetar todos os dados?')) {
-        const adminPassword = ADMIN_PASSWORD; // Use hardcoded password
-        try {
-            const response = await fetch(`${API_BASE_URL}/reset`, {
-                method: 'POST',
-                headers: {
-                    'X-Admin-Password': adminPassword
-                }
-            });
-
-            if (response.ok) {
-                teams = [];
-                individualKills = [];
-                renderTeams();
-                renderIndividualKills();
-                alert('Dados resetados com sucesso!');
-            } else {
-                const errorData = await response.json();
-                alert(`Erro ao resetar dados: ${errorData.error}`);
-            }
-        } catch (error) {
-            console.error('Error resetting data:', error);
-            alert('Erro de conexão ao resetar dados.');
-        }
+        console.error('Error adding individual kill:', error);
+        alert('Erro de conexão ao adicionar kill individual.');
     }
 }
 
@@ -583,121 +554,111 @@ function clearAdminForm() {
     document.getElementById('teamName').value = '';
     document.getElementById('teamTag').value = '';
     document.getElementById('teamKills').value = '';
+    document.getElementById('killPlayer').value = '';
+    document.getElementById('killKills').value = '';
+    document.getElementById('killTeam').value = '';
 }
 
-// Save to local storage (fallback)
-function saveToLocalStorage() {
-    localStorage.setItem('warzoneTeams', JSON.stringify(teams));
-    localStorage.setItem('warzoneKills', JSON.stringify(individualKills));
-}
-
-// Load from local storage if API fails
-function loadFromLocalStorage() {
-    // Load teams from localStorage or use default data
-    const savedTeams = localStorage.getItem('warzoneTeams');
-    if (savedTeams) {
-        teams = JSON.parse(savedTeams);
-    } else {
-        // Default test data
-        teams = [
-            { _id: '1', position: 1, name: 'HAVOC', tag: 'MIXED STAFF', kills: 83, status: 'online' },
-            { _id: '2', position: 2, name: 'BLAZT', tag: 'SARGERIUM SKULLFAÇE', kills: 11, status: 'online' },
-            { _id: '3', position: 3, name: 'LA ELE', tag: 'CERASUS', kills: 10, status: 'online' },
-            { _id: '4', position: 4, name: 'ECHO', tag: 'FRAXELL LEGION', kills: 2, status: 'online' },
-            { _id: '5', position: 5, name: 'CONGY', tag: 'NEWBZ GAME', kills: 0, status: 'online' }
-        ];
-        localStorage.setItem('warzoneTeams', JSON.stringify(teams));
-    }
-    
-    // Load individual kills from localStorage or use default data
-    const savedKills = localStorage.getItem('warzoneKills');
-    if (savedKills) {
-        individualKills = JSON.parse(savedKills);
-    } else {
-        // Default test data
-        individualKills = [
-            { _id: '1', position: 1, player: 'CRUSE GIGA', kills: 5, team: 'HAVOC' },
-            { _id: '2', position: 2, player: 'SPARKO', kills: 4, team: 'BLAZT' },
-            { _id: '3', position: 3, player: 'JC', kills: 3, team: 'LA ELE' }
-        ];
-        localStorage.setItem('warzoneKills', JSON.stringify(individualKills));
-    }
-    
-    renderTeams();
-    renderIndividualKills();
-}
-
-// Auto refresh data every 30 seconds
-function startAutoRefresh() {
-    setInterval(async () => {
-        try {
-            await Promise.all([
-                loadTeams(),
-                loadIndividualKills()
-            ]);
-        } catch (error) {
-            console.log('Auto refresh failed, using local data');
-        }
-    }, 30000);
-}
-
-// Add team kill (for real-time updates) - now uses backend
-async function addTeamKill(teamName) {
-    const team = teams.find(t => t.name === teamName);
-    if (team) {
-        const adminPassword = ADMIN_PASSWORD; // Use hardcoded password
-        try {
-            const response = await fetch(`${API_BASE_URL}/teams/${team._id}/kill`, {
-                method: 'POST',
-                headers: {
-                    'X-Admin-Password': adminPassword
-                }
-            });
-            if (response.ok) {
-                await loadTeams();
-            } else {
-                const errorData = await response.json();
-                console.error('Error updating team kill:', errorData.error);
-            }
-        } catch (error) {
-            console.error('Error updating team kill:', error);
-            saveToLocalStorage();
-        }
-    }
-}
-
-// Add individual kill (now uses backend)
-async function addIndividualKill(playerName, teamName) {
+// Update game number
+async function updateGameNumber() {
+    const current = parseInt(document.getElementById('currentGame').value) || 1;
+    const total = parseInt(document.getElementById('totalGames').value) || 1;
     const adminPassword = ADMIN_PASSWORD; // Use hardcoded password
+
     try {
-        const response = await fetch(`${API_BASE_URL}/kills`, {
-            method: 'POST',
+        const response = await fetch(`${API_BASE_URL}/game-number`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'X-Admin-Password': adminPassword
             },
-            body: JSON.stringify({ player: playerName, team: teamName })
+            body: JSON.stringify({ current, total })
         });
+
         if (response.ok) {
-            await loadIndividualKills();
+            const gameNumber = await response.json();
+            updateGameDisplay(gameNumber);
+            alert('Número do jogo atualizado com sucesso!');
         } else {
             const errorData = await response.json();
-            console.error('Error adding individual kill:', errorData.error);
+            alert(`Erro ao atualizar número do jogo: ${errorData.error}`);
         }
     } catch (error) {
-        console.error('Error adding individual kill:', error);
-        saveToLocalStorage();
+        console.error('Error updating game number:', error);
+        alert('Erro de conexão ao atualizar número do jogo.');
     }
 }
 
-// Admin panel data loading and rendering
+// Reset all data
+async function resetData() {
+    if (!confirm('Tem certeza que deseja resetar todos os dados? Esta ação não pode ser desfeita.')) {
+        return;
+    }
+    const adminPassword = ADMIN_PASSWORD; // Use hardcoded password
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/reset`, {
+            method: 'POST',
+            headers: {
+                'X-Admin-Password': adminPassword
+            }
+        });
+
+        if (response.ok) {
+            await loadInitialData();
+            alert('Todos os dados foram resetados com sucesso!');
+        } else {
+            const errorData = await response.json();
+            alert(`Erro ao resetar dados: ${errorData.error}`);
+        }
+    } catch (error) {
+        console.error('Error resetting data:', error);
+        alert('Erro de conexão ao resetar dados.');
+    }
+}
+
+// Update ranking
+async function updateRanking() {
+    const adminPassword = ADMIN_PASSWORD; // Use hardcoded password
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/update-ranking`, {
+            method: 'POST',
+            headers: {
+                'X-Admin-Password': adminPassword
+            }
+        });
+
+        if (response.ok) {
+            await loadTeams();
+            alert('Ranking atualizado com sucesso!');
+        } else {
+            const errorData = await response.json();
+            alert(`Erro ao atualizar ranking: ${errorData.error}`);
+        }
+    } catch (error) {
+        console.error('Error updating ranking:', error);
+        alert('Erro de conexão ao atualizar ranking.');
+    }
+}
+
+// Load admin data
 async function loadAdminData() {
-    // Reload data to ensure admin panel has latest info
-    await loadTeams();
-    await loadIndividualKills();
-    updateAdminPanelTeams();// Update admin panel teams list
+    try {
+        await Promise.all([
+            loadTeams(),
+            loadIndividualKills()
+        ]);
+    } catch (error) {
+        console.error('Error loading admin data:', error);
+    }
+}
+
+// Update admin panel teams
 function updateAdminPanelTeams() {
-    const adminTeamsList = document.getElementById("adminTeamsList");
+    const adminTeamsList = document.getElementById('adminTeamsList');
+    if (!adminTeamsList) return;
+    
     adminTeamsList.innerHTML = "";
     teams.forEach(team => {
         const li = document.createElement("li");
@@ -712,163 +673,72 @@ function updateAdminPanelTeams() {
     });
 }
 
+// Update admin panel kills
 function updateAdminPanelKills() {
     const adminKillsList = document.getElementById('adminKillsList');
+    if (!adminKillsList) return;
+    
     adminKillsList.innerHTML = '';
     individualKills.forEach(kill => {
         const li = document.createElement('li');
         li.innerHTML = `
-            <span>${kill.player} (${kill.team}) - Kills: ${kill.kills}</span>
+            <span>${kill.player} - ${kill.kills} kills (${kill.team})</span>
             <div>
                 <button class="edit-kill-btn" data-id="${kill._id}">Editar</button>
-                <button class="delete-kill-btn" data-id="${kill._id}">Deletar</button>
+                <button class="delete-kill-btn" data-id="${kill._id}">Excluir</button>
             </div>
         `;
         adminKillsList.appendChild(li);
     });
 }
 
-// Handle window resize for responsive design
-window.addEventListener('resize', function() {
-    // Trigger re-render if needed for responsive adjustments
-    renderTeams();
-    renderIndividualKills();
-});
-
-// Handle visibility change for auto-refresh
-document.addEventListener('visibilitychange', function() {
-    if (!document.hidden) {
-        // Page became visible, refresh data
-        loadInitialData();
+// Load from local storage (fallback)
+function loadFromLocalStorage() {
+    const savedTeams = localStorage.getItem('teams');
+    const savedKills = localStorage.getItem('individualKills');
+    
+    if (savedTeams) {
+        teams = JSON.parse(savedTeams);
+        renderTeams();
     }
-});
-
-// Export functions for external use
-window.warzoneApp = {
-    addTeamKill,
-    addIndividualKill,
-    updateRanking,
-    loadInitialData,
-    showPasswordModal // Expose for settings icon
-};
-
-
-
-
-// Add individual kill from form
-async function submitIndividualKillForm() {
-    const playerName = document.getElementById('playerName').value.trim();
-    const playerTeam = document.getElementById('playerTeam').value.trim();
-
-    if (!playerName || !playerTeam) {
-        alert('Por favor, preencha o nome do jogador e a equipe.');
-        return;
+    
+    if (savedKills) {
+        individualKills = JSON.parse(savedKills);
+        renderIndividualKills();
     }
+}
 
-    const adminPassword = ADMIN_PASSWORD; // Use hardcoded password
-    try {
-        const response = await fetch(`${API_BASE_URL}/kills`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Admin-Password': adminPassword
-            },
-            body: JSON.stringify({ player: playerName, team: playerTeam })
-        });
+// Save to local storage
+function saveToLocalStorage() {
+    localStorage.setItem('teams', JSON.stringify(teams));
+    localStorage.setItem('individualKills', JSON.stringify(individualKills));
+}
 
-        if (response.ok) {
-            await loadIndividualKills();
-            clearKillForm();
-            alert('Kill individual adicionado com sucesso!');
-        } else {
-            const errorData = await response.json();
-            alert(`Erro ao adicionar kill individual: ${errorData.error}`);
+// Auto refresh data
+function startAutoRefresh() {
+    setInterval(async () => {
+        try {
+            await loadInitialData();
+        } catch (error) {
+            console.error('Error during auto refresh:', error);
         }
-    } catch (error) {
-        console.error('Error adding individual kill:', error);
-        alert('Erro de conexão ao adicionar kill individual.');
-    }
+    }, 30000); // Refresh every 30 seconds
 }
 
-// Clear kill form
-function clearKillForm() {
-    document.getElementById('playerName').value = '';
-    document.getElementById('playerTeam').value = '';
-}
-
-
-// Update game number (now uses API)
-async function updateGameNumber() {
-    const gameNumberInput = document.getElementById('gameNumber').value.trim();
-    const adminPassword = ADMIN_PASSWORD;
-    
-    if (!gameNumberInput) {
-        alert('Por favor, insira o número do jogo.');
-        return;
-    }
-    
-    // Parse the input (e.g., "1/10" or "5/10")
-    const match = gameNumberInput.match(/^(\d+)\/(\d+)$/);
-    if (!match) {
-        alert('Formato inválido. Use o formato "1/10".');
-        return;
-    }
-    
-    const current = parseInt(match[1]);
-    const total = parseInt(match[2]);
-    
-    if (current < 1 || current > total) {
-        alert('Número do jogo inválido.');
-        return;
-    }
-    
-    try {
-        const response = await fetch(`${API_BASE_URL}/game`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Admin-Password': adminPassword
-            },
-            body: JSON.stringify({ current, total })
-        });
-        
-        if (response.ok) {
-            const gameNumber = await response.json();
-            updateGameDisplay(gameNumber);
-            document.getElementById('gameNumber').value = '';
-            alert('Número do jogo atualizado com sucesso!');
-        } else {
-            const errorData = await response.json();
-            alert(`Erro ao atualizar número do jogo: ${errorData.error}`);
-        }
-    } catch (error) {
-        console.error('Error updating game number:', error);
-        // Fallback to local storage update
-        const gameLabel = document.getElementById('gameLabel');
-        gameLabel.textContent = `JOGO ${current}/${total}`;
-        localStorage.setItem('gameNumber', `JOGO ${current}/${total}`);
-        document.getElementById('gameNumber').value = '';
-        alert('Número do jogo atualizado localmente (sem conexão com servidor).');
-    }
-}
-
-// Load game number from API
+// Load game number
 async function loadGameNumber() {
     try {
-        const response = await fetch(`${API_BASE_URL}/game`);
+        const response = await fetch(`${API_BASE_URL}/game-number`);
         if (response.ok) {
             const gameNumber = await response.json();
             updateGameDisplay(gameNumber);
-        } else {
-            throw new Error('Failed to load game number');
         }
     } catch (error) {
         console.error('Error loading game number:', error);
-        // Fallback to local storage
+        // Load from local storage as fallback
         const savedGameNumber = localStorage.getItem('gameNumber');
         if (savedGameNumber) {
-            const gameLabel = document.getElementById('gameLabel');
-            gameLabel.textContent = savedGameNumber;
+            document.getElementById('gameLabel').textContent = savedGameNumber;
         }
     }
 }
@@ -876,8 +746,11 @@ async function loadGameNumber() {
 // Update game display
 function updateGameDisplay(gameNumber) {
     const gameLabel = document.getElementById('gameLabel');
+    if (!gameLabel) return;
+    
     gameLabel.textContent = `JOGO ${gameNumber.current}/${gameNumber.total}`;
     
     // Also save to local storage as backup
     localStorage.setItem('gameNumber', `JOGO ${gameNumber.current}/${gameNumber.total}`);
 }
+
