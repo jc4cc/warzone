@@ -141,6 +141,25 @@ const killSchema = new mongoose.Schema({
     }
 });
 
+// Game Number Schema
+const gameNumberSchema = new mongoose.Schema({
+    current: {
+        type: Number,
+        default: 1,
+        min: 1,
+        max: 10
+    },
+    total: {
+        type: Number,
+        default: 10,
+        min: 1
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now
+    }
+});
+
 // Update timestamps on save
 teamSchema.pre("save", function(next) {
     this.updatedAt = Date.now();
@@ -152,8 +171,14 @@ killSchema.pre("save", function(next) {
     next();
 });
 
+gameNumberSchema.pre("save", function(next) {
+    this.updatedAt = Date.now();
+    next();
+});
+
 const Team = mongoose.model("Team", teamSchema);
 const Kill = mongoose.model("Kill", killSchema);
+const GameNumber = mongoose.model("GameNumber", gameNumberSchema);
 
 // Socket.IO for real-time updates
 io.on("connection", (socket) => {
@@ -446,6 +471,46 @@ app.post("/api/reset", authenticateAdmin, async (req, res) => {
     }
 });
 
+// Get current game number
+app.get("/api/game", async (req, res) => {
+    try {
+        let gameNumber = await GameNumber.findOne();
+        if (!gameNumber) {
+            gameNumber = new GameNumber({ current: 1, total: 10 });
+            await gameNumber.save();
+        }
+        res.json(gameNumber);
+    } catch (error) {
+        console.error("Error fetching game number:", error);
+        res.status(500).json({ error: "Failed to fetch game number" });
+    }
+});
+
+// Update game number (Admin only)
+app.put("/api/game", authenticateAdmin, async (req, res) => {
+    try {
+        const { current, total } = req.body;
+        
+        let gameNumber = await GameNumber.findOne();
+        if (!gameNumber) {
+            gameNumber = new GameNumber();
+        }
+        
+        if (current !== undefined) gameNumber.current = current;
+        if (total !== undefined) gameNumber.total = total;
+        
+        await gameNumber.save();
+        
+        // Broadcast update to all connected clients
+        broadcastUpdate("game-number-updated", gameNumber);
+        
+        res.json(gameNumber);
+    } catch (error) {
+        console.error("Error updating game number:", error);
+        res.status(500).json({ error: "Failed to update game number" });
+    }
+});
+
 // Admin authentication endpoint
 app.post("/api/admin/authenticate", authenticateAdmin, (req, res) => {
     res.json({ message: "Authentication successful" });
@@ -527,6 +592,14 @@ async function initializeDefaultData() {
             await Kill.insertMany(defaultKills);
             
             console.log("✅ Default data initialized");
+        }
+        
+        // Initialize game number if it doesn't exist
+        const gameNumberCount = await GameNumber.countDocuments();
+        if (gameNumberCount === 0) {
+            const defaultGameNumber = new GameNumber({ current: 1, total: 10 });
+            await defaultGameNumber.save();
+            console.log("✅ Default game number initialized");
         }
     } catch (error) {
         console.error("❌ Error initializing default data:", error);

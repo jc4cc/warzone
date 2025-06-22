@@ -2,6 +2,7 @@
 const ADMIN_PASSWORD = '929424';
 let teams = [];
 let individualKills = [];
+let socket; // Socket.IO connection
 const API_BASE_URL = 'https://warzone-kzi5.onrender.com/api';
 
 // Team icons mapping
@@ -28,12 +29,66 @@ document.addEventListener('DOMContentLoaded', function() {
     loadGameNumber(); // Load saved game number
     loadInitialData();
     setupEventListeners();
+    setupSocketListeners(); // Setup Socket.IO listeners
     startAutoRefresh();
     
     // Ensure password modal is hidden on page load
     document.getElementById('passwordModal').style.display = 'none';
     document.getElementById('adminPanel').style.display = 'none';
 });
+
+// Setup Socket.IO listeners
+function setupSocketListeners() {
+    // Initialize Socket.IO connection
+    socket = io();
+    
+    socket.on('connect', () => {
+        console.log('Connected to server via Socket.IO');
+    });
+    
+    socket.on('disconnect', () => {
+        console.log('Disconnected from server');
+    });
+    
+    // Listen for game number updates
+    socket.on('game-number-updated', (gameNumber) => {
+        updateGameDisplay(gameNumber);
+    });
+    
+    // Listen for team updates
+    socket.on('team-updated', () => {
+        loadTeams();
+    });
+    
+    socket.on('team-added', () => {
+        loadTeams();
+    });
+    
+    socket.on('team-deleted', () => {
+        loadTeams();
+    });
+    
+    socket.on('ranking-updated', () => {
+        loadTeams();
+    });
+    
+    // Listen for kill updates
+    socket.on('kill-updated', () => {
+        loadIndividualKills();
+    });
+    
+    socket.on('kill-added', () => {
+        loadIndividualKills();
+    });
+    
+    socket.on('kill-deleted', () => {
+        loadIndividualKills();
+    });
+    
+    socket.on('data-reset', () => {
+        loadInitialData();
+    });
+}
 
 // Setup event listeners
 function setupEventListeners() {
@@ -158,6 +213,7 @@ function createTeamCard(team, index) {
     const card = document.createElement('div');
     card.className = 'team-card fade-in';
     card.style.animationDelay = `${index * 0.1}s`;
+    card.setAttribute('data-position', team.position); // Adicionar data-position para CSS
 
     // Add match point class if team has 150+ kills
     if (team.kills >= 150) {
@@ -521,20 +577,40 @@ function saveToLocalStorage() {
     localStorage.setItem('warzoneKills', JSON.stringify(individualKills));
 }
 
-// Load from local storage (fallback)
+// Load from local storage if API fails
 function loadFromLocalStorage() {
+    // Load teams from localStorage or use default data
     const savedTeams = localStorage.getItem('warzoneTeams');
-    const savedKills = localStorage.getItem('warzoneKills');
-
     if (savedTeams) {
         teams = JSON.parse(savedTeams);
-        renderTeams();
+    } else {
+        // Default test data
+        teams = [
+            { _id: '1', position: 1, name: 'HAVOC', tag: 'MIXED STAFF', kills: 83, status: 'online' },
+            { _id: '2', position: 2, name: 'BLAZT', tag: 'SARGERIUM SKULLFAÇE', kills: 11, status: 'online' },
+            { _id: '3', position: 3, name: 'LA ELE', tag: 'CERASUS', kills: 10, status: 'online' },
+            { _id: '4', position: 4, name: 'ECHO', tag: 'FRAXELL LEGION', kills: 2, status: 'online' },
+            { _id: '5', position: 5, name: 'CONGY', tag: 'NEWBZ GAME', kills: 0, status: 'online' }
+        ];
+        localStorage.setItem('warzoneTeams', JSON.stringify(teams));
     }
-
+    
+    // Load individual kills from localStorage or use default data
+    const savedKills = localStorage.getItem('warzoneKills');
     if (savedKills) {
         individualKills = JSON.parse(savedKills);
-        renderIndividualKills();
+    } else {
+        // Default test data
+        individualKills = [
+            { _id: '1', position: 1, player: 'CRUSE GIGA', kills: 5, team: 'HAVOC' },
+            { _id: '2', position: 2, player: 'SPARKO', kills: 4, team: 'BLAZT' },
+            { _id: '3', position: 3, player: 'JC', kills: 3, team: 'LA ELE' }
+        ];
+        localStorage.setItem('warzoneKills', JSON.stringify(individualKills));
     }
+    
+    renderTeams();
+    renderIndividualKills();
 }
 
 // Auto refresh data every 30 seconds
@@ -710,32 +786,87 @@ function clearKillForm() {
 }
 
 
-// Update game number
-function updateGameNumber() {
-    const gameNumber = document.getElementById('gameNumber').value.trim();
+// Update game number (now uses API)
+async function updateGameNumber() {
+    const gameNumberInput = document.getElementById('gameNumber').value.trim();
+    const adminPassword = ADMIN_PASSWORD;
     
-    if (!gameNumber) {
-        alert('Por favor, insira o número do jogo (ex: 1/10).');
+    if (!gameNumberInput) {
+        alert('Por favor, insira o número do jogo.');
         return;
     }
     
-    // Update the game label
-    document.getElementById('gameLabel').textContent = `JOGO ${gameNumber}`;
+    // Parse the input (e.g., "1/10" or "5/10")
+    const match = gameNumberInput.match(/^(\d+)\/(\d+)$/);
+    if (!match) {
+        alert('Formato inválido. Use o formato "1/10".');
+        return;
+    }
     
-    // Save to localStorage for persistence
-    localStorage.setItem('warzoneGameNumber', gameNumber);
+    const current = parseInt(match[1]);
+    const total = parseInt(match[2]);
     
-    // Clear the input
-    document.getElementById('gameNumber').value = '';
+    if (current < 1 || current > total) {
+        alert('Número do jogo inválido.');
+        return;
+    }
     
-    alert('Número do jogo atualizado com sucesso!');
-}
-
-// Load game number from localStorage on page load
-function loadGameNumber() {
-    const savedGameNumber = localStorage.getItem('warzoneGameNumber');
-    if (savedGameNumber) {
-        document.getElementById('gameLabel').textContent = `JOGO ${savedGameNumber}`;
+    try {
+        const response = await fetch(`${API_BASE_URL}/game`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Admin-Password': adminPassword
+            },
+            body: JSON.stringify({ current, total })
+        });
+        
+        if (response.ok) {
+            const gameNumber = await response.json();
+            updateGameDisplay(gameNumber);
+            document.getElementById('gameNumber').value = '';
+            alert('Número do jogo atualizado com sucesso!');
+        } else {
+            const errorData = await response.json();
+            alert(`Erro ao atualizar número do jogo: ${errorData.error}`);
+        }
+    } catch (error) {
+        console.error('Error updating game number:', error);
+        // Fallback to local storage update
+        const gameLabel = document.getElementById('gameLabel');
+        gameLabel.textContent = `JOGO ${current}/${total}`;
+        localStorage.setItem('gameNumber', `JOGO ${current}/${total}`);
+        document.getElementById('gameNumber').value = '';
+        alert('Número do jogo atualizado localmente (sem conexão com servidor).');
     }
 }
 
+// Load game number from API
+async function loadGameNumber() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/game`);
+        if (response.ok) {
+            const gameNumber = await response.json();
+            updateGameDisplay(gameNumber);
+        } else {
+            throw new Error('Failed to load game number');
+        }
+    } catch (error) {
+        console.error('Error loading game number:', error);
+        // Fallback to local storage
+        const savedGameNumber = localStorage.getItem('gameNumber');
+        if (savedGameNumber) {
+            const gameLabel = document.getElementById('gameLabel');
+            gameLabel.textContent = savedGameNumber;
+        }
+    }
+}
+
+// Update game display
+function updateGameDisplay(gameNumber) {
+    const gameLabel = document.getElementById('gameLabel');
+    gameLabel.textContent = `JOGO ${gameNumber.current}/${gameNumber.total}`;
+    
+    // Also save to local storage as backup
+    localStorage.setItem('gameNumber', `JOGO ${gameNumber.current}/${gameNumber.total}`);
+}
