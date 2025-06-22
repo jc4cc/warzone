@@ -20,29 +20,31 @@
                 <h1 class="title">CAMPEONATO<br><span class="warzone">WARZONE</span></h1>
             </div>
             <div class="header-right">
-                <div class="game-info" id="gameInfo">
-                    <span class="game-label" id="gameLabel">JOGO 1/10</span>
-                    <div class="game-icon">🎮</div>
+                <div class="game-info">
+                    <span id="gameLabel" class="game-label">JOGO 1/10</span>
                 </div>
             </div>
         </header>
 
-        <!-- Teams Ranking -->
-        <main class="teams-section">
-            <div class="teams-list" id="teamsList">
-                <!-- Teams will be dynamically loaded here -->
-            </div>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Teams Ranking -->
+            <section class="teams-section">
+                <div id="teamsList" class="teams-list">
+                    <!-- Teams will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Individual Kills Ranking -->
+            <section class="kills-section">
+                <h2 id="killsRankingTitle" class="section-title">RANKING DE KILLS INDIVIDUAIS</h2>
+                <div id="killsRanking" class="kills-ranking">
+                    <!-- Individual kills will be loaded here -->
+                </div>
+            </section>
         </main>
 
-        <!-- Individual Kills Ranking -->
-        <section class="kills-section">
-            <h2 class="kills-title">RANKING DE KILLS INDIVIDUAIS</h2>
-            <div class="kills-ranking" id="killsRanking">
-                <!-- Individual kills ranking will be loaded here -->
-            </div>
-        </section>
-
-        <!-- Admin Panel (Hidden by default) -->
+        <!-- Admin Panel -->
         <div class="admin-panel" id="adminPanel" style="display: none;">
             <div class="admin-content">
                 <span class="close-btn" id="closeAdminPanel">&times;</span>
@@ -55,6 +57,20 @@
                 <div class="admin-form">
                     <input type="text" id="gameNumber" placeholder="Número do Jogo (ex: 1/10)">
                     <button id="updateGameBtn">Atualizar Jogo</button>
+                </div>
+
+                <!-- NOVA SEÇÃO: Configurações de Match Point -->
+                <h4>Configurações de Match Point</h4>
+                <div class="admin-form">
+                    <input type="number" id="matchPointValue" placeholder="Valor do Match Point (ex: 150)" min="1" value="150">
+                    <button id="updateMatchPointBtn">Atualizar Match Point</button>
+                </div>
+
+                <!-- NOVA SEÇÃO: Editar Título do Ranking -->
+                <h4>Editar Título do Ranking</h4>
+                <div class="admin-form">
+                    <input type="text" id="killsRankingTitleInput" placeholder="Título do Ranking de Kills" value="RANKING DE KILLS INDIVIDUAIS">
+                    <button id="updateKillsRankingTitleBtn">Atualizar Título</button>
                 </div>
                 
                 <h4>Adicionar Nova Equipe</h4>
@@ -82,7 +98,6 @@
                 </div>
 
                 <div class="admin-controls">
-                    <!-- Botão "Resetar Todos os Dados" removido -->
                     <button id="refreshDataBtn">Atualizar Dados</button>
                 </div>
             </div>
@@ -107,5 +122,4 @@
     <script src="/socket.io/socket.io.js"></script>
 </body>
 </html>
-
 
