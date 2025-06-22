@@ -710,12 +710,6 @@ function updateAdminPanelTeams() {
         `;
         adminTeamsList.appendChild(li);
     });
-}           <button class="edit-team-btn" data-id="${team._id}">Editar</button>
-                <button class="delete-team-btn" data-id="${team._id}">Deletar</button>
-            </div>
-        `;
-        adminTeamsList.appendChild(li);
-    });
 }
 
 function updateAdminPanelKills() {
