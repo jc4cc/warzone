@@ -27,7 +27,8 @@ app.use(helmet({
 }));
 
 app.use(cors({
-    origin: "*",
+    origin: "https://warzone-kzi5.onrender.com",
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
 }));
 
