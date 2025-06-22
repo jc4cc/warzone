@@ -47,22 +47,24 @@ body {
     font-size: 32px;
     font-weight: 900;
     line-height: 1.2;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-    animation: titleGlow 3s ease-in-out infinite alternate;
-    background: linear-gradient(45deg, #ff6b9d, #4ecdc4, #ffd700, #ff6b9d);
-    background-size: 400% 400%;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: titleGlow 3s ease-in-out infinite alternate, gradientShift 4s ease-in-out infinite;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+    color: #ffffff;
+    /* Removendo o background gradient que estava causando o efeito fusco */
 }
 
 .warzone {
     color: #ff6b9d;
     font-size: 36px;
+    font-weight: 900;
     display: inline-block;
     animation: warzoneFloat 2s ease-in-out infinite;
-    text-shadow: 0 0 20px rgba(255, 107, 157, 0.8), 0 0 40px rgba(255, 107, 157, 0.6);
+    text-shadow: 
+        0 0 10px rgba(255, 107, 157, 0.8),
+        0 0 20px rgba(255, 107, 157, 0.6),
+        2px 2px 4px rgba(0, 0, 0, 0.8);
+    /* Melhor contraste e nitidez */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .header-right .game-info {
@@ -901,18 +903,20 @@ body {
 
 .match-point-indicator {
     position: absolute;
-    top: -10px;
-    right: 10px;
-    background: linear-gradient(45deg, #ffd700, #ffed4e);
-    color: #000;
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-size: 10px;
+    top: -8px;
+    right: 8px;
+    background: transparent; /* Removendo o fundo amarelo */
+    color: #ffd700;
+    padding: 1px 4px;
+    border-radius: 8px;
+    font-size: 8px; /* Diminuindo o tamanho da fonte */
     font-weight: 900;
     animation: indicatorPulse 1s infinite ease-in-out;
     /* Otimizações para mobile */
     -webkit-animation: indicatorPulse 1s infinite ease-in-out;
     will-change: opacity, transform;
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+    /* Melhor visibilidade sem fundo */
 }
 
 /* Champion Styles */
