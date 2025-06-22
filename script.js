@@ -327,7 +327,7 @@ function showChampionAnnouncement(team) {
     overlay.innerHTML = `
         <div class="champion-announcement">
             <div class="champion-fireworks">🎆🎆🎆</div>
-            <h1>🏆 TEMOS UMA CAMPEÃ! 🏆</h1>
+            <h1>🏆 CAMPEÕES! 🏆</h1>
             <h2>${team.name}</h2>
             <h3>(${team.tag})</h3>
             <p>Com ${team.kills} kills!</p>
