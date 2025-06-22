@@ -2,7 +2,7 @@
 console.log('🚀 Warzone Championship Script Loading...');
 
 // Configurações globais
-const API_BASE = '';
+const API_BASE = 'https://warzone-kzi5.onrender.com';
 const ADMIN_PASSWORD = '929424';
 let adminMode = false;
 let socket;
