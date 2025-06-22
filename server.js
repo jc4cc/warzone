@@ -47,7 +47,7 @@ app.use("/api/", limiter);
 
 // Admin authentication middleware
 const authenticateAdmin = (req, res, next) => {
-    const password = req.headers['x-admin-password'];
+    const password = req.headers["x-admin-password"];
     if (password === ADMIN_PASSWORD) {
         next();
     } else {
@@ -166,7 +166,7 @@ const gameNumberSchema = new mongoose.Schema({
 const championSchema = new mongoose.Schema({
     teamId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Team',
+        ref: "Team",
         required: true
     },
     teamName: {
@@ -197,6 +197,13 @@ const championSchema = new mongoose.Schema({
     }
 });
 
+// Global Settings Schema - NOVO ESQUEMA
+const globalSettingsSchema = new mongoose.Schema({
+    name: { type: String, required: true, unique: true },
+    value: { type: mongoose.Schema.Types.Mixed, required: true },
+    updatedAt: { type: Date, default: Date.now }
+});
+
 // Update timestamps on save
 teamSchema.pre("save", function(next) {
     this.updatedAt = Date.now();
@@ -213,10 +220,16 @@ gameNumberSchema.pre("save", function(next) {
     next();
 });
 
+globalSettingsSchema.pre("save", function(next) {
+    this.updatedAt = Date.now();
+    next();
+});
+
 const Team = mongoose.model("Team", teamSchema);
 const Kill = mongoose.model("Kill", killSchema);
 const GameNumber = mongoose.model("GameNumber", gameNumberSchema);
 const Champion = mongoose.model("Champion", championSchema);
+const GlobalSetting = mongoose.model("GlobalSetting", globalSettingsSchema);
 
 // Socket.IO for real-time updates
 io.on("connection", (socket) => {
@@ -590,187 +603,118 @@ app.post("/api/champion", authenticateAdmin, async (req, res) => {
 
         await champion.save();
 
-        // Broadcast champion announcement
-        broadcastUpdate("champion-set", {
-            champion,
-            team
-        });
+        // Broadcast champion
+        broadcastUpdate("champion-set", champion);
 
-        res.status(201).json({
-            message: `🏆 ${team.name} foi definida como CAMPEÃ!`,
-            champion,
-            team
-        });
+        res.status(201).json(champion);
     } catch (error) {
         console.error("Error setting champion:", error);
         res.status(500).json({ error: "Failed to set champion" });
     }
 });
 
-// Get current champion
-app.get("/api/champion", async (req, res) => {
+// Get champion team for current game
+app.get("/api/champion/current", async (req, res) => {
     try {
-        // Get current game number
         let gameNumber = await GameNumber.findOne();
         if (!gameNumber) {
             gameNumber = { current: 1 };
         }
 
-        const champion = await Champion.findOne({ gameNumber: gameNumber.current })
-            .populate('teamId');
-
+        const champion = await Champion.findOne({ gameNumber: gameNumber.current });
         if (!champion) {
-            return res.status(404).json({ error: "No champion set for current game" });
+            return res.status(404).json({ error: "No champion found for the current game" });
         }
 
         res.json(champion);
     } catch (error) {
-        console.error("Error fetching champion:", error);
-        res.status(500).json({ error: "Failed to fetch champion" });
+        console.error("Error fetching current champion:", error);
+        res.status(500).json({ error: "Failed to fetch current champion" });
     }
 });
 
-// Get all champions (history)
-app.get("/api/champions", async (req, res) => {
+// Remove current champion (Admin only)
+app.delete("/api/champion/current", authenticateAdmin, async (req, res) => {
     try {
-        const champions = await Champion.find()
-            .populate('teamId')
-            .sort({ gameNumber: -1 });
+        let gameNumber = await GameNumber.findOne();
+        if (!gameNumber) {
+            gameNumber = { current: 1 };
+        }
 
-        res.json(champions);
-    } catch (error) {
-        console.error("Error fetching champions:", error);
-        res.status(500).json({ error: "Failed to fetch champions" });
-    }
-});
-
-// Remove champion (Admin only)
-app.delete("/api/champion/:id", authenticateAdmin, async (req, res) => {
-    try {
-        const champion = await Champion.findByIdAndDelete(req.params.id);
+        const champion = await Champion.findOneAndDelete({ gameNumber: gameNumber.current });
         if (!champion) {
-            return res.status(404).json({ error: "Champion not found" });
+            return res.status(404).json({ error: "No champion found for the current game to remove" });
         }
 
         // Broadcast update
-        broadcastUpdate("champion-removed", { id: req.params.id });
+        broadcastUpdate("champion-removed", { gameNumber: gameNumber.current });
 
-        res.json({ message: "Champion removed successfully" });
+        res.json({ message: `Champion for game ${gameNumber.current} removed successfully` });
     } catch (error) {
-        console.error("Error removing champion:", error);
-        res.status(500).json({ error: "Failed to remove champion" });
+        console.error("Error removing current champion:", error);
+        res.status(500).json({ error: "Failed to remove current champion" });
     }
 });
 
-// Admin authentication endpoint
-app.post("/api/admin/authenticate", authenticateAdmin, (req, res) => {
-    res.json({ message: "Authentication successful" });
+// API para configurações globais (NOVO)
+app.get("/api/settings", async (req, res) => {
+    try {
+        const settings = await GlobalSetting.find({});
+        const settingsMap = {};
+        settings.forEach(setting => {
+            settingsMap[setting.name] = setting.value;
+        });
+        res.json(settingsMap);
+    } catch (error) {
+        console.error("Error fetching global settings:", error);
+        res.status(500).json({ error: "Failed to fetch global settings" });
+    }
 });
 
-// Health check
-app.get("/api/health", (req, res) => {
-    res.json({ 
-        status: "OK", 
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime()
-    });
+app.put("/api/settings", authenticateAdmin, async (req, res) => {
+    try {
+        const { name, value } = req.body;
+        if (!name || value === undefined) {
+            return res.status(400).json({ error: "Name and value are required" });
+        }
+
+        let setting = await GlobalSetting.findOneAndUpdate(
+            { name: name },
+            { value: value },
+            { new: true, upsert: true, runValidators: true }
+        );
+
+        // Broadcast update
+        broadcastUpdate("settings-updated", { [setting.name]: setting.value });
+
+        res.json(setting);
+    } catch (error) {
+        console.error("Error updating global setting:", error);
+        res.status(500).json({ error: "Failed to update global setting" });
+    }
 });
 
-// Helper function to update team positions
+// Helper function to update team positions based on kills
 async function updateTeamPositions() {
-    try {
-        const teams = await Team.find().sort({ kills: -1, createdAt: 1 });
-        
-        for (let i = 0; i < teams.length; i++) {
-            teams[i].position = i + 1;
-            await teams[i].save();
-        }
-    } catch (error) {
-        console.error("Error updating team positions:", error);
+    const teams = await Team.find().sort({ kills: -1, name: 1 }); // Sort by kills (desc) then name (asc)
+    for (let i = 0; i < teams.length; i++) {
+        teams[i].position = i + 1;
+        await teams[i].save();
     }
 }
 
-// Helper function to update kill positions
+// Helper function to update individual kill positions based on kills
 async function updateKillPositions() {
-    try {
-        const kills = await Kill.find().sort({ kills: -1, createdAt: 1 });
-        
-        for (let i = 0; i < kills.length; i++) {
-            kills[i].position = i + 1;
-            await kills[i].save();
-        }
-    } catch (error) {
-        console.error("Error updating kill positions:", error);
+    const kills = await Kill.find().sort({ kills: -1, player: 1 }); // Sort by kills (desc) then player (asc)
+    for (let i = 0; i < kills.length; i++) {
+        kills[i].position = i + 1;
+        await kills[i].save();
     }
 }
 
-// Initialize default data if database is empty
-async function initializeDefaultData() {
-    try {
-        const teamCount = await Team.countDocuments();
-        
-        if (teamCount === 0) {
-            console.log("🔄 Initializing default data...");
-            
-            const defaultTeams = [
-                { position: 1, name: "HAVOC", tag: "MIXED STAFF", kills: 5, status: "online" },
-                { position: 2, name: "BLAZT", tag: "SARGERIUM SKULLFAÇE", kills: 11, status: "online" },
-                { position: 3, name: "LA ELE", tag: "CERASUS", kills: 150, status: "online" },
-                { position: 4, name: "ECHO", tag: "FRAXELL LEGION", kills: 2, status: "online" },
-                { position: 5, name: "CONGY", tag: "NEWBZ GAME", kills: 0, status: "online" },
-                { position: 6, name: "ADRIAN", tag: "DESTROY UNRATIONAL", kills: 0, status: "online" },
-                { position: 7, name: "DEKI", tag: "LAYZE STRIKE", kills: 0, status: "online" },
-                { position: 8, name: "RMR", tag: "CASTILLO ZWARE", kills: 0, status: "online" },
-                { position: 9, name: "SPARKTYN", tag: "SPARKTYN RYGA", kills: 0, status: "online" },
-                { position: 10, name: "OTTERSEVES", tag: "FAMILIA ZENT", kills: 0, status: "online" },
-                { position: 11, name: "PHANTOM", tag: "SHADOW OPS", kills: 0, status: "online" },
-                { position: 12, name: "VIPER", tag: "COBRA STRIKE", kills: 0, status: "online" },
-                { position: 13, name: "GHOST", tag: "SILENT KILLERS", kills: 0, status: "online" },
-                { position: 14, name: "TITAN", tag: "IRON FIST", kills: 0, status: "online" },
-                { position: 15, name: "WOLF", tag: "LONE PACK", kills: 0, status: "online" }
-            ];
-
-            const defaultKills = [
-                { position: 1, player: "CRUSE GIGA", kills: 5, team: "HAVOC" },
-                { position: 2, player: "SPARKO", kills: 4, team: "BLAZT" },
-                { position: 3, player: "JC", kills: 3, team: "LA ELE" },
-                { position: 4, player: "CLUNGY FLAMED AZTEC", kills: 2, team: "ECHO" },
-                { position: 5, player: "SPARKO FORESTER SPARKTYN", kills: 1, team: "CONGY" }
-            ];
-
-            await Team.insertMany(defaultTeams);
-            await Kill.insertMany(defaultKills);
-            
-            console.log("✅ Default data initialized");
-        }
-    } catch (error) {
-        console.error("❌ Error initializing default data:", error);
-    }
-}
-
-// Start server
-server.listen(PORT, "0.0.0.0", async () => {
+// Start the server
+server.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`🌐 Access the app at: http://localhost:${PORT}`);
-    
-    // Initialize default data
-    await initializeDefaultData();
 });
 
-// Graceful shutdown
-process.on('SIGTERM', () => {
-    console.log('🛑 SIGTERM received, shutting down gracefully');
-    server.close(() => {
-        console.log('✅ Process terminated');
-        mongoose.connection.close();
-    });
-});
-
-process.on('SIGINT', () => {
-    console.log('🛑 SIGINT received, shutting down gracefully');
-    server.close(() => {
-        console.log('✅ Process terminated');
-        mongoose.connection.close();
-    });
-});
 
