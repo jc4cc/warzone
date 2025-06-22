@@ -550,8 +550,8 @@ app.use((error, req, res, next) => {
 
 // Start server
 server.listen(PORT, "0.0.0.0", async () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`🌐 Access the app at: http://localhost:${PORT}`);
+    console.log(`🚀 Server running on port ${3000}`);
+    console.log(`🌐 Access the app at: http://localhost:${3000}`);
     
     // Initialize default data
     await initializeDefaultData();
