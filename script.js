@@ -247,11 +247,14 @@ function displayTeams(teams) {
         const matchPointClass = isMatchPoint ? "match-point" : "";
         const championClass = isChampion ? "champion-team" : "";
         
+        // Determina se o ícone deve ser exibido (apenas para posições > 15)
+        const showIcon = position > 15;
+
         return `
             <div class="team-card fade-in ${matchPointClass} ${championClass}" data-position="${position}" data-team-id="${team._id}">
                 <div class="team-left">
                     <div class="team-position">${position}</div>
-                    <div class="team-icon">${isChampion ? "👑" : "🎯"}</div>
+                    ${showIcon ? `<div class="team-icon">${isChampion ? "👑" : "🎯"}</div>` : ""}
                     <div class="team-info">
                         <div class="team-name">${team.name}</div>
                         <div class="team-tag">${team.tag}</div>

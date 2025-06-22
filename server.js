@@ -286,10 +286,13 @@ app.post("/api/teams", authenticateAdmin, async (req, res) => {
             return res.status(400).json({ error: "Name and tag are required" });
         }
 
-        // Check if team already exists
-        const existingTeam = await Team.findOne({ name: name.toUpperCase() });
+        // Check if team already exists (case-insensitive for name and tag)
+        const existingTeam = await Team.findOne({ $or: [
+            { name: new RegExp(`^${name}$`, 'i') },
+            { tag: new RegExp(`^${tag}$`, 'i') }
+        ]});
         if (existingTeam) {
-            return res.status(409).json({ error: "Team already exists" });
+            return res.status(409).json({ error: "Team with this name or tag already exists." });
         }
 
         // Check team limit
@@ -321,6 +324,10 @@ app.post("/api/teams", authenticateAdmin, async (req, res) => {
         res.status(201).json(team);
     } catch (error) {
         console.error("Error creating team:", error);
+        // More specific error handling for Mongoose validation errors
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ error: error.message });
+        }
         res.status(500).json({ error: "Failed to create team" });
     }
 });
@@ -330,9 +337,21 @@ app.put("/api/teams/:id", authenticateAdmin, async (req, res) => {
     try {
         const { name, tag, kills, status } = req.body;
         
+        // Check if updated name or tag already exists for another team
+        const existingTeam = await Team.findOne({ 
+            _id: { $ne: req.params.id },
+            $or: [
+                { name: new RegExp(`^${name}$`, 'i') },
+                { tag: new RegExp(`^${tag}$`, 'i') }
+            ]
+        });
+        if (existingTeam) {
+            return res.status(409).json({ error: "Another team with this name or tag already exists." });
+        }
+
         const team = await Team.findByIdAndUpdate(
             req.params.id,
-            { name, tag, kills, status },
+            { name: name.toUpperCase(), tag: tag.toUpperCase(), kills, status },
             { new: true, runValidators: true }
         );
 
@@ -349,6 +368,9 @@ app.put("/api/teams/:id", authenticateAdmin, async (req, res) => {
         res.json(team);
     } catch (error) {
         console.error("Error updating team:", error);
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ error: error.message });
+        }
         res.status(500).json({ error: "Failed to update team" });
     }
 });
@@ -476,7 +498,7 @@ app.post("/api/kills", authenticateAdmin, async (req, res) => {
         }
 
         // Check if player already exists
-        let kill = await Kill.findOne({ player: player.toUpperCase() });
+        let kill = await Kill.findOne({ player: new RegExp(`^${player}$`, 'i') });
         
         if (kill) {
             kill.kills += 1;
@@ -502,6 +524,9 @@ app.post("/api/kills", authenticateAdmin, async (req, res) => {
         res.status(201).json(kill);
     } catch (error) {
         console.error("Error adding kill:", error);
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ error: error.message });
+        }
         res.status(500).json({ error: "Failed to add kill" });
     }
 });
