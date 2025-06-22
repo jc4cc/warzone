@@ -394,7 +394,7 @@ async function editKillPrompt(killId) {
     const adminPassword = '929424'; // Use hardcoded password
 
     try {
-        const response = await fetch(`${API_BASE_URL}/kills/${killId}`, {
+        const response = await fetch(`${https://warzone-kzi5.onrender.com}/kills/${killId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -424,10 +424,10 @@ async function deleteKill(killId) {
     const adminPassword = '929424'; // Use hardcoded password
 
     try {
-        const response = await fetch(`${API_BASE_URL}/kills/${killId}`, {
+        const response = await fetch(`${https://warzone-kzi5.onrender.com}/kills/${killId}`, {
             method: 'DELETE',
             headers: {
-                'X-Admin-Password': adminPassword
+                'X-Admin-Password': adminPassord
             }
         });
 
@@ -457,7 +457,7 @@ function updateTeamPositions() {
 async function updateRanking() {
     const adminPassword = '929424'; // Use hardcoded password
     try {
-        const response = await fetch(`${API_BASE_URL}/teams/ranking`, {
+        const response = await fetch(`${https://warzone-kzi5.onrender.com}/teams/ranking`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
