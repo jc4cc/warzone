@@ -1,4 +1,5 @@
 // Global variables
+const ADMIN_PASSWORD = '929424';
 let teams = [];
 let individualKills = [];
 const API_BASE_URL = 'https://warzonecamp.onrender.com/api';
@@ -223,7 +224,7 @@ async function checkPassword() {
     const password = document.getElementById('passwordInput').value;
     const errorElement = document.getElementById('passwordError');
 
-    if (password !== '929424') {
+    if (password !== ADMIN_PASSWORD) {
         errorElement.textContent = 'Senha incorreta!';
         document.getElementById('passwordInput').value = '';
         return;
@@ -251,7 +252,7 @@ async function checkPassword() {
     } catch (error) {
         console.error('Error authenticating:', error);
         // Allow offline mode with correct password
-        if (password === '929424') {
+        if (password === ADMIN_PASSWORD) {
             document.getElementById('passwordModal').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'flex';
             document.getElementById('passwordInput').value = '';
@@ -273,7 +274,7 @@ async function addTeam() {
     const name = document.getElementById('teamName').value.trim();
     const tag = document.getElementById('teamTag').value.trim();
     const kills = parseInt(document.getElementById('teamKills').value) || 0;
-    const adminPassword = '929424'; // Use hardcoded password
+    const adminPassword = ADMIN_PASSWORD; // Use hardcoded password
 
     if (!name || !tag) {
         alert('Por favor, preencha o nome e a tag da equipe.');
@@ -321,7 +322,7 @@ async function editTeamPrompt(teamId) {
     const newKills = prompt('Novas kills da equipe:', teamToEdit.kills);
     if (newKills === null) return; // User cancelled
 
-    const adminPassword = '929424'; // Use hardcoded password
+    const adminPassword = ADMIN_PASSWORD; // Use hardcoded password
 
     try {
         const response = await fetch(`${API_BASE_URL}/teams/${teamId}`, {
@@ -351,7 +352,7 @@ async function deleteTeam(teamId) {
     if (!confirm('Tem certeza que deseja deletar esta equipe?')) {
         return;
     }
-    const adminPassword = '929424'; // Use hardcoded password
+    const adminPassword = ADMIN_PASSWORD; // Use hardcoded password
 
     try {
         const response = await fetch(`${API_BASE_URL}/teams/${teamId}`, {
@@ -391,10 +392,10 @@ async function editKillPrompt(killId) {
     const newTeam = prompt('Nova equipe do jogador:', killToEdit.team);
     if (newTeam === null) return; // User cancelled
 
-    const adminPassword = '929424'; // Use hardcoded password
+    const adminPassword = ADMIN_PASSWORD; // Use hardcoded password
 
     try {
-        const response = await fetch( `https://warzone-kzi5.onrender.com}/kills/${killId}`, {
+        const response = await fetch(`https://warzone-kzi5.onrender.com/kills/${killId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -421,13 +422,13 @@ async function deleteKill(killId) {
     if (!confirm('Tem certeza que deseja deletar este kill individual?')) {
         return;
     }
-    const adminPassword = '929424'; // Use hardcoded password
+    const adminPassword = ADMIN_PASSWORD; // Use hardcoded password
 
     try {
-        const response = await fetch(`${https://warzone-kzi5.onrender.com}/kills/${killId}`, {
+        const response = await fetch(`https://warzone-kzi5.onrender.com/kills/${killId}`, {
             method: 'DELETE',
             headers: {
-                'X-Admin-Password': adminPassord
+                'X-Admin-Password': ADMIN_PASSWORD
             }
         });
 
@@ -455,9 +456,9 @@ function updateTeamPositions() {
 
 // Update ranking (now triggers backend update)
 async function updateRanking() {
-    const adminPassword = '929424'; // Use hardcoded password
+    const adminPassword = ADMIN_PASSWORD; // Use hardcoded password
     try {
-        const response = await fetch(`${https://warzone-kzi5.onrender.com}/teams/ranking`, {
+        const response = await fetch(`https://warzone-kzi5.onrender.com/teams/ranking`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -481,7 +482,7 @@ async function updateRanking() {
 // Reset all data
 async function resetData() {
     if (confirm('Tem certeza que deseja resetar todos os dados?')) {
-        const adminPassword = '929424'; // Use hardcoded password
+        const adminPassword = ADMIN_PASSWORD; // Use hardcoded password
         try {
             const response = await fetch(`${API_BASE_URL}/reset`, {
                 method: 'POST',
@@ -554,7 +555,7 @@ function startAutoRefresh() {
 async function addTeamKill(teamName) {
     const team = teams.find(t => t.name === teamName);
     if (team) {
-        const adminPassword = '929424'; // Use hardcoded password
+        const adminPassword = ADMIN_PASSWORD; // Use hardcoded password
         try {
             const response = await fetch(`${API_BASE_URL}/teams/${team._id}/kill`, {
                 method: 'POST',
@@ -577,7 +578,7 @@ async function addTeamKill(teamName) {
 
 // Add individual kill (now uses backend)
 async function addIndividualKill(playerName, teamName) {
-    const adminPassword = '929424'; // Use hardcoded password
+    const adminPassword = ADMIN_PASSWORD; // Use hardcoded password
     try {
         const response = await fetch(`${API_BASE_URL}/kills`, {
             method: 'POST',
@@ -668,7 +669,7 @@ window.warzoneApp = {
 
 
 // Add individual kill from form
-async function addIndividualKill() {
+async function submitIndividualKillForm() {
     const playerName = document.getElementById('playerName').value.trim();
     const playerTeam = document.getElementById('playerTeam').value.trim();
 
@@ -677,7 +678,7 @@ async function addIndividualKill() {
         return;
     }
 
-    const adminPassword = '929424'; // Use hardcoded password
+    const adminPassword = ADMIN_PASSWORD; // Use hardcoded password
     try {
         const response = await fetch(`${API_BASE_URL}/kills`, {
             method: 'POST',
