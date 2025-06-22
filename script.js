@@ -2,7 +2,7 @@
 const ADMIN_PASSWORD = '929424';
 let teams = [];
 let individualKills = [];
-const API_BASE_URL = 'https://warzonecamp.onrender.com/api';
+const API_BASE_URL = 'https://warzone-kzi5.onrender.com/api';
 
 // Team icons mapping
 const teamIcons = {
