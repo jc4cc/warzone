@@ -394,7 +394,7 @@ async function editKillPrompt(killId) {
     const adminPassword = '929424'; // Use hardcoded password
 
     try {
-        const response = await fetch(`${https://warzone-kzi5.onrender.com}/kills/${killId}`, {
+        const response = await fetch( `https://warzone-kzi5.onrender.com}/kills/${killId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
