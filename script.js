@@ -130,6 +130,8 @@ function setupEventListeners() {
     document.getElementById('refreshDataBtn').addEventListener('click', loadInitialData);
     document.getElementById('updateRankingBtn').addEventListener('click', updateRanking);
 
+    document.getElementById("editModeBtn").addEventListener("click", toggleTeamManagement);
+
     // Admin edit/delete functionality
     document.getElementById('adminPanel').addEventListener('click', async function(event) {
         if (event.target.classList.contains('edit-team-btn')) {
@@ -146,6 +148,18 @@ function setupEventListeners() {
             await deleteKill(killId);
         }
     });
+}
+
+// Toggle team management section visibility
+function toggleTeamManagement() {
+    const adminTeamsList = document.getElementById("adminTeamsList");
+    if (adminTeamsList.style.display === "none" || adminTeamsList.style.display === "") {
+        adminTeamsList.style.display = "block";
+        document.getElementById("updateRankingBtn").style.display = "block";
+    } else {
+        adminTeamsList.style.display = "none";
+        document.getElementById("updateRankingBtn").style.display = "none";
+    }
 }
 
 // Load initial data
@@ -681,19 +695,22 @@ async function loadAdminData() {
     // Reload data to ensure admin panel has latest info
     await loadTeams();
     await loadIndividualKills();
-    updateAdminPanelTeams();
-    updateAdminPanelKills();
-}
-
+    updateAdminPanelTeams();// Update admin panel teams list
 function updateAdminPanelTeams() {
-    const adminTeamsList = document.getElementById('adminTeamsList');
-    adminTeamsList.innerHTML = '';
+    const adminTeamsList = document.getElementById("adminTeamsList");
+    adminTeamsList.innerHTML = "";
     teams.forEach(team => {
-        const li = document.createElement('li');
+        const li = document.createElement("li");
         li.innerHTML = `
-            <span>${team.name} (${team.tag}) - Kills: ${team.kills}</span>
+            <span>${team.name} (${team.kills} kills)</span>
             <div>
                 <button class="edit-team-btn" data-id="${team._id}">Editar</button>
+                <button class="delete-team-btn" data-id="${team._id}">Excluir</button>
+            </div>
+        `;
+        adminTeamsList.appendChild(li);
+    });
+}           <button class="edit-team-btn" data-id="${team._id}">Editar</button>
                 <button class="delete-team-btn" data-id="${team._id}">Deletar</button>
             </div>
         `;
